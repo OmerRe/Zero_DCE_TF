@@ -3,11 +3,13 @@ import shutil
 import os 
 import cv2
 
-ori_path = 'G:\\My Drive\\Dataset_Part1\\'
-des_path = 'G:\\My Drive\\Dataset_Part1\\All\\'
+ori_path = "/train/Dataset_Part1/"
+des_path = "/train/Dataset_Part1/All/"
+
 
 def move_file(ori_path, des_path):
     dir_list = [x[0] for x in os.walk(ori_path)]
+    print(dir_list)
     for p in dir_list[1:]:
         for f in glob.glob(p + "\\*.jpg"):
             name = f.split("\\")[-2] + "_" + f.split("\\")[-1]

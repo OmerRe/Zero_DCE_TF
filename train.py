@@ -5,12 +5,12 @@ import os
 import sys
 import argparse 
 import time
-import data_lowlight
+from src import data_lowlight
 import numpy as np
 import glob
 
 from src.loss import *
-from model import DCE_x
+from src.model import DCE_x
 from tensorflow.keras import Model, Input
 from tensorflow.keras.layers import Concatenate, Conv2D
 from PIL import Image
@@ -75,7 +75,6 @@ def train(config):
     x_r = Conv2D(24, (3,3), strides=(1,1), activation='tanh', padding='same')(int_con3)
 
     model = Model(inputs=input_img, outputs = x_r)
-    
     print("Start training ...")
     for epoch in range(config.num_epochs):
         for iteration, img_lowlight in enumerate(train_dataset):
@@ -118,7 +117,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 
 	# Input Parameters
-	parser.add_argument('--lowlight_images_path', type=str, default="/home/inhand/Tu/DCE/Dataset_Part1/")
+	parser.add_argument('--lowlight_images_path', type=str, default="train/Dataset_Part1/All/")
 	parser.add_argument('--lr', type=float, default=0.0001)
 	parser.add_argument('--gpu', type=int, default=0)
 	parser.add_argument('--grad_clip_norm', type=float, default=0.1)
@@ -129,8 +128,8 @@ if __name__ == "__main__":
 	parser.add_argument('--display_iter', type=int, default=2)
 	parser.add_argument('--checkpoint_iter', type=int, default=2)
 	parser.add_argument('--checkpoints_folder', type=str, default="weights/")
-	parser.add_argument('--load_pretrain', type=bool, default= False)
-	parser.add_argument('--pretrain_dir', type=str, default= "weights/Epoch10.h5")
+	parser.add_argument('--load_pretrain', type=bool, default= True)
+	parser.add_argument('--pretrain_dir', type=str, default= "weights/ep_12_it_376.h5")
 
 	config = parser.parse_args()
 

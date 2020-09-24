@@ -5,21 +5,20 @@ import os
 import sys
 import argparse 
 import time
-import data_lowlight
-import model
+import src.model
 import numpy as np
 import glob
 
 from PIL import Image
-from loss import *
-from model import DCE_x
+from src.loss import *
+from src.model import DCE_x
 from keras import Model, Input
 from keras.layers import Concatenate, Conv2D
 
 tf.compat.v1.enable_eager_execution()
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--lowlight_test_images_path', type=str, default="/home/inhand/Tu/DCE/test/DICM/")
+parser.add_argument('--lowlight_test_images_path', type=str, default="test/sites/")
 config = parser.parse_args()
 
 def test(lowlight_test_images_path):
@@ -37,7 +36,7 @@ def test(lowlight_test_images_path):
     x_r = Conv2D(24, (3,3), strides=(1,1), activation='tanh', padding='same')(int_con3)
 
     model = Model(inputs=input_img, outputs = x_r)
-    model.load_weights("weights/ep_2_it_200.h5")
+    model.load_weights("weights/ep_26_it_376.h5")
 
     ### load image ###
     for test_file in glob.glob(lowlight_test_images_path + "*.jpg"):
@@ -70,6 +69,6 @@ def test(lowlight_test_images_path):
         enhance_image = tf.cast((enhance_image[0,:,:,:] * 255), dtype=np.uint8)
         enhance_image = Image.fromarray(enhance_image.numpy())
         enhance_image = enhance_image.resize(original_size, Image.ANTIALIAS)
-        enhance_image.save(test_file.replace(".jpg", "_rs.jpg"))
+        enhance_image.save("test/results_26/"+'/'.join(test_file.split('/')[2:]))
 
 test(config.lowlight_test_images_path)
