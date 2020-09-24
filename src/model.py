@@ -13,11 +13,11 @@ def DCE_x(input_shape):
     conv3 = Conv2D(32, (3, 3), strides=(1,1), activation='relu', padding='same')(conv2)
     conv4 = Conv2D(32, (3, 3), strides=(1,1), activation='relu', padding='same')(conv3)
 
-    int_con1 = Concatenate(axis=-1)([conv3, conv4])
+    int_con1 = Concatenate(axis=-1)([conv4, conv3])
     conv5 = Conv2D(32, (3, 3), strides=(1,1), activation='relu', padding='same')(int_con1)
-    int_con2 = Concatenate(axis=-1)([conv2, conv5])
+    int_con2 = Concatenate(axis=-1)([conv5, conv2])
     conv6 = Conv2D(32, (3, 3), strides=(1,1), activation='relu', padding='same')(int_con2)
-    int_con3 = Concatenate(axis=-1)([conv1, conv6])
+    int_con3 = Concatenate(axis=-1)([conv6, conv1])
     x_r = Conv2D(24, (3,3), strides=(1,1), activation='tanh', padding='same')(int_con3)
 
 
