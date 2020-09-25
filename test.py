@@ -1,9 +1,9 @@
 import keras
-import tensorflow as tf 
+import tensorflow as tf
 import keras.backend as K
 import os
 import sys
-import argparse 
+import argparse
 import time
 import src.model
 import numpy as np
@@ -18,7 +18,7 @@ from keras.layers import Concatenate, Conv2D
 tf.compat.v1.enable_eager_execution()
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--lowlight_test_images_path', type=str, default="test/sites/")
+parser.add_argument('--lowlight_test_images_path', type=str, default="test/LIME/")
 config = parser.parse_args()
 
 def test(lowlight_test_images_path):
@@ -35,8 +35,8 @@ def test(lowlight_test_images_path):
     int_con3 = Concatenate(axis=-1)([conv6, conv1])
     x_r = Conv2D(24, (3,3), strides=(1,1), activation='tanh', padding='same')(int_con3)
 
-    model = Model(inputs=input_img, outputs = x_r)
-    model.load_weights("weights/ep_26_it_376.h5")
+    model = Model(inputs=input_img, outputs=x_r)
+    model.load_weights("weights/ep_12_it_376.h5")
 
     ### load image ###
     for test_file in glob.glob(lowlight_test_images_path + "*.jpg"):
@@ -44,31 +44,35 @@ def test(lowlight_test_images_path):
         original_img = Image.open(data_lowlight_path)
         original_size = (np.array(original_img).shape[1], np.array(original_img).shape[0])
 
-        original_img = original_img.resize((512,512), Image.ANTIALIAS) 
+        original_img = original_img.resize((512,512), Image.ANTIALIAS)
         original_img = (np.asarray(original_img)/255.0)
 
         img_lowlight = Image.open(data_lowlight_path)
-                
+
         img_lowlight = img_lowlight.resize((512,512), Image.ANTIALIAS)
 
-        img_lowlight = (np.asarray(img_lowlight)/255.0) 
+        img_lowlight = (np.asarray(img_lowlight)/255.0)
         img_lowlight = np.expand_dims(img_lowlight, 0)
         # img_lowlight = K.constant(img_lowlight)
 
         ### process image ###
+        start = time.time()
         A = model.predict(img_lowlight)
         r1, r2, r3, r4, r5, r6, r7, r8 = A[:,:,:,:3], A[:,:,:,3:6], A[:,:,:,6:9], A[:,:,:,9:12], A[:,:,:,12:15], A[:,:,:,15:18], A[:,:,:,18:21], A[:,:,:,21:24]
         x = original_img + r1 * (K.pow(original_img,2)-original_img)
         x = x + r2 * (K.pow(x,2)-x)
         x = x + r3 * (K.pow(x,2)-x)
         enhanced_image_1 = x + r4*(K.pow(x,2)-x)
-        x = enhanced_image_1 + r5*(K.pow(enhanced_image_1,2)-enhanced_image_1)		
-        x = x + r6*(K.pow(x,2)-x)	
+        x = enhanced_image_1 + r5*(K.pow(enhanced_image_1,2)-enhanced_image_1)
+        x = x + r6*(K.pow(x,2)-x)
         x = x + r7*(K.pow(x,2)-x)
         enhance_image = x + r8*(K.pow(x,2)-x)
         enhance_image = tf.cast((enhance_image[0,:,:,:] * 255), dtype=np.uint8)
         enhance_image = Image.fromarray(enhance_image.numpy())
         enhance_image = enhance_image.resize(original_size, Image.ANTIALIAS)
-        enhance_image.save("test/results_26/"+'/'.join(test_file.split('/')[2:]))
+        duration = time.time() - start
+        print('duration time of {}: {} seconds'.format(test_file, duration))
+        enhance_image.save("test/results_12/" + '/'.join(test_file.split('/')[2:]))
+
 
 test(config.lowlight_test_images_path)
